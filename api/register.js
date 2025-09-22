@@ -131,7 +131,7 @@ export default {
       // return jsonResponse({ predictions: data.predictions });
     }
 
-    if (pathname === "/" && request.method === "POST") {
+    if (pathname === "/api/register" && request.method === "POST") {
       let body;
       try {
         body = await request.json();
