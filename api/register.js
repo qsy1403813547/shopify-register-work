@@ -110,6 +110,8 @@ export default async function handler(req, res) {
     if (pathname === "/api/register") {
       let body = req.body || {};
 
+      console.log(req);
+
       // 如果 body 为空，手动解析
       if (!body || Object.keys(body).length === 0) {
         body = await new Promise((resolve, reject) => {
@@ -148,59 +150,59 @@ export default async function handler(req, res) {
       const searchResult = await searchRes.json();
       const existingCustomer = searchResult.customers?.[0];
 
-      if (existingCustomer) {
-        // 更新已有客户
-        const updateData = {
-          customer: { id: existingCustomer.id, first_name, last_name, email, phone, note, accepts_marketing: true }
-        };
+      // if (existingCustomer) {
+      //   // 更新已有客户
+      //   const updateData = {
+      //     customer: { id: existingCustomer.id, first_name, last_name, email, phone, note, accepts_marketing: true }
+      //   };
 
-        const updateRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}.json`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
-          body: JSON.stringify(updateData)
-        });
+      //   const updateRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}.json`, {
+      //     method: "PUT",
+      //     headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
+      //     body: JSON.stringify(updateData)
+      //   });
 
-        const updatedCustomer = await updateRes.json();
+      //   const updatedCustomer = await updateRes.json();
 
-        // 发送邀请
-        const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}/send_invite.json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
-          body: JSON.stringify({ customer_invite: { custom_message: `${discountCode}` } })
-        });
-        const inviteResult = inviteRes.ok ? await inviteRes.json() : { error: await inviteRes.text() };
+      //   // 发送邀请
+      //   const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}/send_invite.json`, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
+      //     body: JSON.stringify({ customer_invite: { custom_message: `${discountCode}` } })
+      //   });
+      //   const inviteResult = inviteRes.ok ? await inviteRes.json() : { error: await inviteRes.text() };
 
-        return jsonResponse(res, {
-          message: "Customer updated and invite sent",
-          discountCode,
-          customer: updatedCustomer.customer,
-          invite_response: inviteResult
-        });
-      } else {
-        // 创建新客户
-        const createRes = await fetch(`https://${shop}/admin/api/2024-04/customers.json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
-          body: JSON.stringify({ customer: { first_name, last_name, email, phone, note, accepts_marketing: true } })
-        });
-        const createResult = await createRes.json();
-        const customerId = createResult.customer?.id;
+      //   return jsonResponse(res, {
+      //     message: "Customer updated and invite sent",
+      //     discountCode,
+      //     customer: updatedCustomer.customer,
+      //     invite_response: inviteResult
+      //   });
+      // } else {
+      //   // 创建新客户
+      //   const createRes = await fetch(`https://${shop}/admin/api/2024-04/customers.json`, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
+      //     body: JSON.stringify({ customer: { first_name, last_name, email, phone, note, accepts_marketing: true } })
+      //   });
+      //   const createResult = await createRes.json();
+      //   const customerId = createResult.customer?.id;
 
-        // 发送邀请
-        const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${customerId}/send_invite.json`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
-          body: JSON.stringify({ customer_invite: { custom_message: `${discountCode}` } })
-        });
-        const inviteResult = inviteRes.ok ? await inviteRes.json() : { error: await inviteRes.text() };
+      //   // 发送邀请
+      //   const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${customerId}/send_invite.json`, {
+      //     method: "POST",
+      //     headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": token },
+      //     body: JSON.stringify({ customer_invite: { custom_message: `${discountCode}` } })
+      //   });
+      //   const inviteResult = inviteRes.ok ? await inviteRes.json() : { error: await inviteRes.text() };
 
-        return jsonResponse(res, {
-          message: "Customer created and invite sent",
-          discountCode,
-          customer: createResult.customer,
-          invite_response: inviteResult
-        }, 201);
-      }
+      //   return jsonResponse(res, {
+      //     message: "Customer created and invite sent",
+      //     discountCode,
+      //     customer: createResult.customer,
+      //     invite_response: inviteResult
+      //   }, 201);
+      // }
     }
 
     return res.status(404).json({ error: "Not Found" });
