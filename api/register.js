@@ -122,7 +122,7 @@ export default async function handler(req, res) {
       }
 
       const shop = process.env.SHOPIFY_SHOP;
-      const token = process.env.SHOPIFY_ADMIN_API_TOKEN;
+      const token = process.env.SHOPIFY_ADMIN_TOKEN;
 
       // 创建/查找 Price Rule
       const priceRuleTitle = "15% Club Discount";
