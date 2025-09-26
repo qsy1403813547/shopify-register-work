@@ -14,85 +14,83 @@ function jsonResponse(data, status = 200) {
   });
 }
 
+function generateCodeSuffix(length = 6) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
 
-// 自动生成优惠码（暂时取消）
-// function generateCodeSuffix(length = 6) {
-//   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-//   return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-// }
+async function findPriceRule(shop, token, title) {
+  const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules.json`, {
+    headers: {
+      "X-Shopify-Access-Token": token,
+      "Content-Type": "application/json"
+    }
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to fetch price rules: ${errText}`);
+  }
+  const data = await res.json();
+  const rule = data.price_rules.find(r => r.title === title);
+  return rule ? rule.id : null;
+}
 
-// async function findPriceRule(shop, token, title) {
-//   const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules.json`, {
-//     headers: {
-//       "X-Shopify-Access-Token": token,
-//       "Content-Type": "application/json"
-//     }
-//   });
-//   if (!res.ok) {
-//     const errText = await res.text();
-//     throw new Error(`Failed to fetch price rules: ${errText}`);
-//   }
-//   const data = await res.json();
-//   const rule = data.price_rules.find(r => r.title === title);
-//   return rule ? rule.id : null;
-// }
+async function createPriceRule(shop, token, title) {
+  const now = new Date().toISOString();
+  const body = {
+    price_rule: {
+      title: title,
+      target_type: "line_item",
+      target_selection: "all",
+      allocation_method: "across",
+      value_type: "percentage",
+      value: "-15.0",
+      customer_selection: "all",
+      starts_at: now,
+      usage_limit: 1,
+      once_per_customer: true
+    }
+  };
 
-// async function createPriceRule(shop, token, title) {
-//   const now = new Date().toISOString();
-//   const body = {
-//     price_rule: {
-//       title: title,
-//       target_type: "line_item",
-//       target_selection: "all",
-//       allocation_method: "across",
-//       value_type: "percentage",
-//       value: "-15.0",
-//       customer_selection: "all",
-//       starts_at: now,
-//       usage_limit: 1,
-//       once_per_customer: true
-//     }
-//   };
+  const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": token
+    },
+    body: JSON.stringify(body)
+  });
 
-//   const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules.json`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "X-Shopify-Access-Token": token
-//     },
-//     body: JSON.stringify(body)
-//   });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to create price rule: ${errText}`);
+  }
 
-//   if (!res.ok) {
-//     const errText = await res.text();
-//     throw new Error(`Failed to create price rule: ${errText}`);
-//   }
+  const data = await res.json();
+  return data.price_rule.id;
+}
 
-//   const data = await res.json();
-//   return data.price_rule.id;
-// }
+async function createDiscountCode(shop, token, priceRuleId) {
+  const code = 'DUT15';
+  const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules/${priceRuleId}/discount_codes.json`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Shopify-Access-Token": token
+    },
+    body: JSON.stringify({
+      discount_code: { code }
+    })
+  });
 
-// async function createDiscountCode(shop, token, priceRuleId) {
-//   const code = `CLUB15-${generateCodeSuffix()}`;
-//   const res = await fetch(`https://${shop}/admin/api/2024-04/price_rules/${priceRuleId}/discount_codes.json`, {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "X-Shopify-Access-Token": token
-//     },
-//     body: JSON.stringify({
-//       discount_code: { code }
-//     })
-//   });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Failed to create discount code: ${errText}`);
+  }
 
-//   if (!res.ok) {
-//     const errText = await res.text();
-//     throw new Error(`Failed to create discount code: ${errText}`);
-//   }
-
-//   const data = await res.json();
-//   return data.discount_code.code;
-// }
+  const data = await res.json();
+  return data.discount_code.code;
+}
 
 export default {
   async fetch(request, env, ctx) {
@@ -170,16 +168,14 @@ export default {
       const token = process.env.SHOPIFY_ADMIN_TOKEN;
 
       try {
-        // const priceRuleTitle = "15% Club Discount";
-        // let priceRuleId = await findPriceRule(shop, token, priceRuleTitle);
-        // if (!priceRuleId) {
-        //   priceRuleId = await createPriceRule(shop, token, priceRuleTitle);
-        // }
+        const priceRuleTitle = "15% Club Discount";
+        let priceRuleId = await findPriceRule(shop, token, priceRuleTitle);
+        if (!priceRuleId) {
+          priceRuleId = await createPriceRule(shop, token, priceRuleTitle);
+        }
 
-        // const discountCode = await createDiscountCode(shop, token, priceRuleId);
-        // const note = `Birthday: ${birthday || ''}, Gender: ${gender || ''}, RUT: ${rut || ''}, Source: ${source || ''}, Discount: ${discountCode}`;
-
-        const note = `Birthday: ${birthday || ''}, Gender: ${gender || ''}, RUT: ${rut || ''}, Source: ${source || ''}`;
+        const discountCode = await createDiscountCode(shop, token, priceRuleId);
+        const note = `Birthday: ${birthday || ''}, Gender: ${gender || ''}, RUT: ${rut || ''}, Source: ${source || ''}, Discount: ${discountCode}`;
 
         const searchRes = await fetch(`https://${shop}/admin/api/2024-04/customers/search.json?query=email:${encodeURIComponent(email)}`, {
           headers: { "X-Shopify-Access-Token": token }
@@ -196,6 +192,8 @@ export default {
         if (existingCustomer) {
 
 
+
+          
             // 先检查 note 里 Source 来源
             const note = existingCustomer.note || "";
             if (note.includes("Dutties Club Form")) {
@@ -205,7 +203,7 @@ export default {
             }
 
 
-
+            
           const updateData = {
             customer: {
               id: existingCustomer.id,
@@ -245,7 +243,7 @@ export default {
               "Content-Type": "application/json",
               "X-Shopify-Access-Token": token
             },
-            body: JSON.stringify({ customer_invite: { custom_message: "updated" } })
+            body: JSON.stringify({ customer_invite: { custom_message: ` ${discountCode}` } })
           });
 
           let inviteResult = null;
@@ -255,11 +253,9 @@ export default {
             inviteResult = { error: await inviteRes.text() };
           }
 
-
-          // discountCode,
           return jsonResponse({
             message: "Customer updated and invite sent",
-            
+            discountCode,
             customer: updatedCustomer.customer,
             invite_response: inviteResult
           });
@@ -306,7 +302,7 @@ export default {
               "Content-Type": "application/json",
               "X-Shopify-Access-Token": token
             },
-            body: JSON.stringify({ customer_invite: { custom_message: "created" } })
+            body: JSON.stringify({ customer_invite: { custom_message: `${discountCode}` } })
           });
 
           let inviteResult = null;
@@ -316,10 +312,9 @@ export default {
             inviteResult = { error: await inviteRes.text() };
           }
 
-          //  discountCode,
           return jsonResponse({
             message: "Customer created and invite sent",
-           
+            discountCode,
             customer: createResult.customer,
             invite_response: inviteResult
           }, 201);
