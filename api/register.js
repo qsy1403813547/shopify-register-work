@@ -156,7 +156,8 @@ export default {
         birthday,
         gender,
         rut,
-        source
+        source,
+        tags
       } = body;
 
       if (!first_name || !last_name || !email) {
@@ -214,6 +215,7 @@ export default {
               email,
               phone,
               note,
+              tags,
               accepts_marketing: true
             }
           };
@@ -271,6 +273,7 @@ export default {
               email,
               phone,
               note,
+              tags,
               accepts_marketing: true
             }
           };
