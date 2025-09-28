@@ -198,8 +198,8 @@ export default {
 
 
             // 先检查 note 里 Source 来源
-            const note = existingCustomer.note || "";
-            if (note.includes("Dutties Club Form")) {
+            const noteError = existingCustomer.note || "";
+            if (noteError.includes("Dutties Club Form")) {
               return jsonResponse({
                 error: "Customer has already registered for the Club"
               }, 454); // 返回自定义状态码
