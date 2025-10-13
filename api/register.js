@@ -194,6 +194,26 @@ export default {
         const searchResult = await searchRes.json();
         const existingCustomer = searchResult.customers && searchResult.customers[0];
 
+
+        // 构造 customer 对象（标准字段 + Metafields）
+        const customerPayload = {
+          first_name,
+          last_name,
+          email,
+          phone,
+          note,
+          tags,
+          accepts_marketing: true,
+          metafields: [
+            {
+              namespace: "facts",
+              key: "birth_date",
+              type: "date",
+              value: birthday || null
+            }
+          ]
+        };
+
         if (existingCustomer) {
 
 
@@ -207,18 +227,21 @@ export default {
 
 
 
-          const updateData = {
-            customer: {
-              id: existingCustomer.id,
-              first_name,
-              last_name,
-              email,
-              phone,
-              note,
-              tags,
-              accepts_marketing: true
-            }
-          };
+          // const updateData = {
+          //   customer: {
+          //     id: existingCustomer.id,
+          //     first_name,
+          //     last_name,
+          //     email,
+          //     phone,
+          //     note,
+          //     tags,
+          //     accepts_marketing: true
+          //   }
+          // };
+
+          // 更新客户（PUT 同时提交标准字段 + Metafield）
+          const updateData = { customer: { id: existingCustomer.id, ...customerPayload } };
 
           const updateRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}.json`, {
             method: "PUT",
@@ -266,17 +289,20 @@ export default {
             invite_response: inviteResult
           });
         } else {
-          const createData = {
-            customer: {
-              first_name,
-              last_name,
-              email,
-              phone,
-              note,
-              tags,
-              accepts_marketing: true
-            }
-          };
+          // const createData = {
+          //   customer: {
+          //     first_name,
+          //     last_name,
+          //     email,
+          //     phone,
+          //     note,
+          //     tags,
+          //     accepts_marketing: true
+          //   }
+          // };
+
+          // 创建客户（POST 同时提交标准字段 + Metafield）
+          const createData = { customer: customerPayload };
 
           const createRes = await fetch(`https://${shop}/admin/api/2024-04/customers.json`, {
             method: "POST",
