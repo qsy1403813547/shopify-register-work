@@ -260,6 +260,38 @@ export default {
           const updatedCustomer = await updateRes.json();
 
 
+        if(!body.discountCode) {
+          body.discountCode = body.discountCode ? body.discountCode : "DUT15";
+        }
+
+        if (!body.discountValue) {
+
+          body.discountValue = "15% off";
+        } 
+
+
+          // console.log('同步客户数据到后台:', body);
+          const apiRes = await fetch('https://apim.fppay.com/dutties/1.0.0/clientes', {
+            method: 'POST',
+            // authorization: {
+            //   key: 'apikey',
+            //   value: `${env.MY_BACKEND_AUTH_TOKEN}`
+            // }, // API令牌
+            headers: { 
+              'Content-Type': 'application/json',
+              "apikey": process.env.MY_BACKEND_AUTH_TOKEN,
+              // 'X-Authorization-Key': 'apikey',
+              // 'X-Authorization-Value': env.MY_BACKEND_AUTH_TOKEN
+              // 'Authorization': {
+              //   key: 'apikey',
+              //   value: `${env.MY_BACKEND_AUTH_TOKEN}`
+              // },
+            },
+            body: JSON.stringify(body)
+          });
+          const resText = await apiRes.text();
+
+
         
           
        
@@ -284,7 +316,7 @@ export default {
           // discountCode,
           return jsonResponse({
             message: "Customer updated and invite sent",
-            
+            res: resText,
             customer: updatedCustomer.customer,
             invite_response: inviteResult
           });
@@ -325,6 +357,38 @@ export default {
             return jsonResponse({ error: "Customer ID not returned after creation" }, 500);
           }
 
+
+        if(!body.discountCode) {
+          body.discountCode = body.discountCode ? body.discountCode : "DUT15";
+        }
+
+        if (!body.discountValue) {
+
+          body.discountValue = "15% off";
+        } 
+
+
+          // console.log('同步客户数据到后台:', body);
+          const apiRes = await fetch('https://apim.fppay.com/dutties/1.0.0/clientes', {
+            method: 'POST',
+            // authorization: {
+            //   key: 'apikey',
+            //   value: `${env.MY_BACKEND_AUTH_TOKEN}`
+            // }, // API令牌
+            headers: { 
+              'Content-Type': 'application/json',
+              "apikey": process.env.MY_BACKEND_AUTH_TOKEN,
+              // 'X-Authorization-Key': 'apikey',
+              // 'X-Authorization-Value': env.MY_BACKEND_AUTH_TOKEN
+              // 'Authorization': {
+              //   key: 'apikey',
+              //   value: `${env.MY_BACKEND_AUTH_TOKEN}`
+              // },
+            },
+            body: JSON.stringify(body)
+          });
+          const resText = await apiRes.text();
+
       
          
 
@@ -348,7 +412,7 @@ export default {
           //  discountCode,
           return jsonResponse({
             message: "Customer created and invite sent",
-           
+            res: resText,
             customer: createResult.customer,
             invite_response: inviteResult
           }, 201);
