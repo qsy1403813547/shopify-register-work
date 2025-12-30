@@ -296,21 +296,21 @@ export default {
           
        
 
-          // const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}/send_invite.json`, {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json",
-          //     "X-Shopify-Access-Token": token
-          //   },
-          //   body: JSON.stringify({ customer_invite: { custom_message: "updated" } })
-          // });
+          const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${existingCustomer.id}/send_invite.json`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": token
+            },
+            body: JSON.stringify({ customer_invite: { custom_message: "updated" } })
+          });
 
-          // let inviteResult = null;
-          // if (inviteRes.ok) {
-          //   inviteResult = await inviteRes.json();
-          // } else {
-          //   inviteResult = { error: await inviteRes.text() };
-          // }
+          let inviteResult = null;
+          if (inviteRes.ok) {
+            inviteResult = await inviteRes.json();
+          } else {
+            inviteResult = { error: await inviteRes.text() };
+          }
 
 
           // discountCode,
@@ -318,7 +318,7 @@ export default {
             message: "Customer updated and invite sent",
             res: resText,
             customer: updatedCustomer.customer,
-            // invite_response: inviteResult
+            invite_response: inviteResult
           });
         } else {
           // const createData = {
@@ -393,28 +393,28 @@ export default {
          
 
 
-          // const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${customerId}/send_invite.json`, {
-          //   method: "POST",
-          //   headers: {
-          //     "Content-Type": "application/json",
-          //     "X-Shopify-Access-Token": token
-          //   },
-          //   body: JSON.stringify({ customer_invite: { custom_message: "created" } })
-          // });
+          const inviteRes = await fetch(`https://${shop}/admin/api/2024-04/customers/${customerId}/send_invite.json`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": token
+            },
+            body: JSON.stringify({ customer_invite: { custom_message: "created" } })
+          });
 
-          // let inviteResult = null;
-          // if (inviteRes.ok) {
-          //   inviteResult = await inviteRes.json();
-          // } else {
-          //   inviteResult = { error: await inviteRes.text() };
-          // }
+          let inviteResult = null;
+          if (inviteRes.ok) {
+            inviteResult = await inviteRes.json();
+          } else {
+            inviteResult = { error: await inviteRes.text() };
+          }
 
           //  discountCode,
           return jsonResponse({
             message: "Customer created and invite sent",
             res: resText,
             customer: createResult.customer,
-            // invite_response: inviteResult
+            invite_response: inviteResult
           }, 201);
         }
       } catch (err) {
