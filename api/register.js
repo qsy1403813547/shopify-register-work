@@ -463,25 +463,14 @@ export default {
         });
 
         const data = await response.json();
-        const searchesData = data?.data?.searchesData?.tableData?.rows || [];
+        const searchesRows  = data?.data?.searchesData?.tableData?.rows || [];
+
+        const topSearches = searchesRows.map(r => r[0]);
 
         // 返回前端
-        return new Response(JSON.stringify({ top_searches: topSearches }), {
-          status: 200,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        });
+        return jsonResponse({ top_searches: topSearches });
       } catch (err) {
-        // console.error("Error fetching Shopify sessions:", err);
-        return new Response(JSON.stringify({ error: err.message }), {
-          status: 500,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        });
+        return jsonResponse({ error: "Internal server error", details: err.message }, 500);
       }
 
     }
