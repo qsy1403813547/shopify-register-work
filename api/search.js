@@ -179,7 +179,7 @@ export default {
         // const topSearches = searchesRows.map(r => r[0]);
 
         // 返回前端
-        return jsonResponse({ top_searches: searchesRows });
+        return jsonResponse({ top_searches: data });
       } catch (err) {
         return jsonResponse({ error: "Internal server error", details: err.message }, 500);
       }
