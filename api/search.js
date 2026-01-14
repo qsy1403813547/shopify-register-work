@@ -154,7 +154,7 @@ export default {
             GROUP BY search_query
             SINCE -30d UNTIL today
             ORDER BY searches DESC
-            LIMIT 3
+            LIMIT 50
           "
         ) {
           tableData { rows }
@@ -179,7 +179,7 @@ export default {
         // const topSearches = searchesRows.map(r => r[0]);
 
         // 返回前端
-        return jsonResponse({ top_searches: data });
+        return jsonResponse({ top_searches: searchesRows });
       } catch (err) {
         return jsonResponse({ error: "Internal server error", details: err.message }, 500);
       }
