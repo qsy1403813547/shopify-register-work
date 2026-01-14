@@ -103,6 +103,7 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    // 地址联想
     if (pathname === "/autocomplete") {
       // if (request.method !== "POST") {
       //   return new Response("Method Not Allowed", { status: 405, headers: corsHeaders });
@@ -133,6 +134,7 @@ export default {
       // return jsonResponse({ predictions: data.predictions });
     }
 
+    // 会员注册
     if (pathname === "/api/register" && request.method === "POST") {
       let body;
       try {
@@ -420,6 +422,56 @@ export default {
       } catch (err) {
         return jsonResponse({ error: "Internal server error", details: err.message }, 500);
       }
+    }
+
+    // 搜索排序
+    if(pathname === "/api/search/list" && request.method === "GET") {
+      const shop = process.env.SHOPIFY_SHOP;
+      const token = process.env.SHOPIFY_ADMIN_TOKEN;
+      const endpoint = `https://${shop}/admin/api/2025-10/graphql.json`;
+
+      // 可以通过 query 参数传日期，默认今天
+      const date = url.searchParams.get("date") || new Date().toISOString().slice(0, 10);
+
+      // ShopifyQL 查询 Sessions 数据，并包含搜索词
+      const sessionsQuery = `
+      {
+        searchesData: shopifyqlQuery(
+          query: "
+            FROM searches
+            SHOW searches
+            GROUP BY search_query
+            SINCE -30d UNTIL today
+            ORDER BY searches DESC
+            LIMIT 3
+          "
+        ) {
+          tableData { rows }
+          parseErrors
+        }
+      }
+      `;
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "X-Shopify-Access-Token": token,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ query: sessionsQuery }),
+        });
+
+        const data = await response.json();
+        const searchesData = data?.data?.searchesData?.tableData?.rows || [];
+
+        // 返回前端
+        return jsonResponse({top_searches: searchesData });
+      } catch (err) {
+        console.error("Error fetching Shopify sessions:", err);
+        return jsonResponse({ error: "Failed to fetch Shopify sessions", details: err.message }, 500);
+      }
+
     }
 
     return new Response("Not Found", { status: 404, headers: corsHeaders });
