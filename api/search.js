@@ -136,7 +136,7 @@ export default {
 
    
     // 搜索排序
-    if(pathname === "/api/search" && request.method === "GET") {
+    if(pathname === "/api/search" && request.method === "POST") {
       const shop = process.env.SHOPIFY_SHOP;
       const token = process.env.SHOPIFY_ADMIN_TOKEN;
       const endpoint = `https://${shop}/admin/api/2025-10/graphql.json`;
@@ -176,10 +176,10 @@ export default {
         const data = await response.json();
         const searchesRows  = data?.data?.searchesData?.tableData?.rows || [];
 
-        const topSearches = searchesRows.map(r => r[0]);
+        // const topSearches = searchesRows.map(r => r[0]);
 
         // 返回前端
-        return jsonResponse({ top_searches: topSearches });
+        return jsonResponse({ top_searches: searchesRows });
       } catch (err) {
         return jsonResponse({ error: "Internal server error", details: err.message }, 500);
       }
