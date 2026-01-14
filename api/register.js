@@ -466,10 +466,22 @@ export default {
         const searchesData = data?.data?.searchesData?.tableData?.rows || [];
 
         // 返回前端
-        return jsonResponse({top_searches: searchesData });
+        return new Response(JSON.stringify({ top_searches: topSearches }), {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        });
       } catch (err) {
-        console.error("Error fetching Shopify sessions:", err);
-        return jsonResponse({ error: "Failed to fetch Shopify sessions", details: err.message }, 500);
+        // console.error("Error fetching Shopify sessions:", err);
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        });
       }
 
     }
