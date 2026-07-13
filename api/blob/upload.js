@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+const { put } = require('@vercel/blob')
 
 
 export default async function handler(req, res) {
