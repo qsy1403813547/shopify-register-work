@@ -1,10 +1,19 @@
-const { put } = require('@vercel/blob')
+import { put } from '@vercel/blob';
+import formidable from 'formidable';
+import fs from 'fs';
+
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 
 export default async function handler(req, res) {
 
 
-  // CORS 设置
+  // CORS
   res.setHeader(
     'Access-Control-Allow-Origin',
     'https://uat-dutties-p.myshopify.com'
@@ -21,49 +30,45 @@ export default async function handler(req, res) {
   );
 
 
-  // 处理 OPTIONS 预检请求
   if (req.method === 'OPTIONS') {
-
     return res.status(200).end();
-
   }
 
 
   if (req.method !== 'POST') {
-
     return res.status(405).json({
-      error: 'Method not allowed'
+      error:'Method not allowed'
     });
-
   }
 
 
   try {
 
 
-    const formData =
-      await req.formData();
+    const form =
+      formidable({});
+
+
+    const [fields, files] =
+      await form.parse(req);
 
 
     const file =
-      formData.get('file');
+      files.file[0];
 
 
-    if (!file) {
-
-      return res.status(400).json({
-        error:'No file'
-      });
-
-    }
+    const buffer =
+      fs.readFileSync(
+        file.filepath
+      );
 
 
     const blob =
       await put(
-        file.name,
-        file,
+        file.originalFilename,
+        buffer,
         {
-          access:'public'
+          access:'public',
         }
       );
 

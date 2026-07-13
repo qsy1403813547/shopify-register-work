@@ -2,6 +2,7 @@
   "name": "shopify-proxy-api",
   "version": "1.0.0",
   "dependencies": {
-    "@vercel/blob": "^2.6.1"
+    "@vercel/blob": "^2.6.1",
+    "formidable": "^3.5.4"
   }
 }
