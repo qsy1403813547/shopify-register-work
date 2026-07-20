@@ -68,7 +68,9 @@ export default async function handler(req,res){
 
             operations:[
                 "get"
-            ]
+            ],
+
+            validUntil: Date.now() + 60 * 60 * 1000, // 1 hour
 
         });
 
@@ -85,11 +87,11 @@ export default async function handler(req,res){
             token,
 
             {
-                pathname,
+                pathname: pathname,
 
                 operation:"get",
 
-                 access:"private",
+                access:"private",
 
                 validUntil:
                 Date.now() + 10 * 60 * 1000
