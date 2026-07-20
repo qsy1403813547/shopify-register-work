@@ -1,4 +1,4 @@
-import { issueSignedToken, presignUrl } from "@vercel/blob";
+import { presignUrl } from "@vercel/blob";
 
 
 export default async function handler(req,res){
@@ -34,16 +34,16 @@ export default async function handler(req,res){
 
 
         const {
-            pathname
+            url
         } = req.body;
 
 
 
-        if(!pathname){
+        if(!url){
 
             return res.status(400).json({
 
-                error:"Missing pathname"
+                error:"Missing url"
 
             });
 
@@ -52,58 +52,12 @@ export default async function handler(req,res){
 
 
         // =========================
-        // 1. 创建读取token
+        // 生成临时访问URL
         // =========================
 
-        const token =
-        await issueSignedToken({
 
-            pathname: pathname,
-
-            // 加这个
-            storeId:
-            process.env.BLOB_STORE_ID,
-
-            // 加这个
-            access:"private",
-
-            operations:[
-                "get"
-            ]
-
-        });
-
-
-
-
-
-        // =========================
-        // 2. 生成临时URL
-        // =========================
-
-        const {
-            presignedUrl
-        } =
-        await presignUrl(
-
-            token,
-
-            {
-
-                pathname: 'rar7yqqletlnnqwd.private.blob.vercel-storage.com' + pathname,
-
-                operation:"get",
-
-                // 10分钟有效
-
-                validUntil:
-                Date.now() + 
-                10 * 60 * 1000
-
-            }
-
-        );
-
+        const presignedUrl =
+        await presignUrl(url);
 
 
 
