@@ -69,6 +69,7 @@ export default async function handler(req, res) {
         buffer,
         {
           access:'private',
+           allowOverwrite: true,
         }
       );
 
