@@ -1,12 +1,10 @@
-import { createPresignedUrl } from "@vercel/blob";
+import { issueSignedToken, presignUrl } from "@vercel/blob";
 
 
 export default async function handler(req,res){
 
 
-    // ======================
     // CORS
-    // ======================
 
     res.setHeader(
         "Access-Control-Allow-Origin",
@@ -27,12 +25,8 @@ export default async function handler(req,res){
 
 
 
-    // 处理预检请求
-
     if(req.method === "OPTIONS"){
-
         return res.status(200).end();
-
     }
 
 
@@ -46,16 +40,48 @@ export default async function handler(req,res){
 
 
 
-        const url =
-        await createPresignedUrl(
-            pathname
+        // 创建读取权限token
+
+        const token =
+        await issueSignedToken({
+
+            pathname: pathname,
+
+            operations:[
+                "get"
+            ]
+
+        });
+
+
+
+        // 生成临时URL
+
+        const {
+            presignedUrl
+        } =
+        await presignUrl(
+
+            token,
+
+            {
+
+                pathname: pathname,
+
+                operation:"get",
+
+                validUntil:
+                Date.now() + 10 * 60 * 1000
+
+            }
+
         );
 
 
 
         return res.json({
 
-            url:url
+            url:presignedUrl
 
         });
 
@@ -63,6 +89,9 @@ export default async function handler(req,res){
 
     }
     catch(error){
+
+
+        console.error(error);
 
 
         return res.status(500).json({
