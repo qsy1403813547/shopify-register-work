@@ -24,7 +24,6 @@ export default async function handler(req,res){
     );
 
 
-
     if(req.method === "OPTIONS"){
         return res.status(200).end();
     }
@@ -40,12 +39,33 @@ export default async function handler(req,res){
 
 
 
-        // 创建读取权限token
+        if(!pathname){
+
+            return res.status(400).json({
+
+                error:"Missing pathname"
+
+            });
+
+        }
+
+
+
+        // =========================
+        // 1. 创建读取token
+        // =========================
 
         const token =
         await issueSignedToken({
 
             pathname: pathname,
+
+            // 加这个
+            storeId:
+            process.env.BLOB_STORE_ID,
+
+            // 加这个
+            access:"private",
 
             operations:[
                 "get"
@@ -55,7 +75,11 @@ export default async function handler(req,res){
 
 
 
-        // 生成临时URL
+
+
+        // =========================
+        // 2. 生成临时URL
+        // =========================
 
         const {
             presignedUrl
@@ -70,8 +94,11 @@ export default async function handler(req,res){
 
                 operation:"get",
 
+                // 10分钟有效
+
                 validUntil:
-                Date.now() + 10 * 60 * 1000
+                Date.now() + 
+                10 * 60 * 1000
 
             }
 
@@ -79,7 +106,8 @@ export default async function handler(req,res){
 
 
 
-        return res.json({
+
+        return res.status(200).json({
 
             url:presignedUrl
 
@@ -91,7 +119,10 @@ export default async function handler(req,res){
     catch(error){
 
 
-        console.error(error);
+        console.error(
+            "签名错误:",
+            error
+        );
 
 
         return res.status(500).json({
