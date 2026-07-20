@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         file.originalFilename,
         buffer,
         {
-          access:'public',
+          access:'private',
         }
       );
 
