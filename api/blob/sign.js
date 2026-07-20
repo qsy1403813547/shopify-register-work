@@ -49,31 +49,29 @@ export default async function handler(req,res){
 
 
 
-        // ==========================
-        // 生成签名Token
-        // ==========================
+        // 创建读取权限
 
-        const {
-            clientToken,
-            clientSigningToken,
-            delegationToken
-        } = await issueSignedToken({
+        const token =
+        await issueSignedToken({
 
             pathname: pathname,
 
-            onToken: ()=>{},
-
-            allowedContentTypes:[
-                "image/*"
+            operations:[
+                "get"
             ]
 
         });
 
 
 
-        // ==========================
-        // 生成临时URL
-        // ==========================
+        const {
+            clientSigningToken,
+            delegationToken
+        } = token;
+
+
+
+        // 生成临时访问URL
 
         const presignedUrl =
         await presignUrl(
@@ -92,7 +90,7 @@ export default async function handler(req,res){
 
 
 
-        return res.json({
+        return res.status(200).json({
 
             url:presignedUrl
 
@@ -117,5 +115,6 @@ export default async function handler(req,res){
         });
 
     }
+
 
 }
