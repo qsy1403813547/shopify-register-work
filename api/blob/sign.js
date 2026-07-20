@@ -89,6 +89,8 @@ export default async function handler(req,res){
 
                 operation:"get",
 
+                 access:"private",
+
                 validUntil:
                 Date.now() + 10 * 60 * 1000
             }
