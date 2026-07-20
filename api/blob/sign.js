@@ -4,6 +4,8 @@ import { issueSignedToken, presignUrl } from "@vercel/blob";
 export default async function handler(req,res){
 
 
+    // CORS
+
     res.setHeader(
         "Access-Control-Allow-Origin",
         "https://uat-dutties-p.myshopify.com"
@@ -22,6 +24,7 @@ export default async function handler(req,res){
     );
 
 
+
     if(req.method === "OPTIONS"){
         return res.status(200).end();
     }
@@ -37,19 +40,7 @@ export default async function handler(req,res){
 
 
 
-        if(!pathname){
-
-            return res.status(400).json({
-
-                error:"Missing pathname"
-
-            });
-
-        }
-
-
-
-        // 创建读取权限
+        // 创建读取权限token
 
         const token =
         await issueSignedToken({
@@ -64,25 +55,23 @@ export default async function handler(req,res){
 
 
 
+        // 生成临时URL
+
         const {
-            clientSigningToken,
-            delegationToken
-        } = token;
-
-
-
-        // 生成临时访问URL
-
-        const presignedUrl =
+            presignedUrl
+        } =
         await presignUrl(
 
-            pathname,
+            token,
 
             {
 
-                clientSigningToken,
+                pathname: pathname,
 
-                delegationToken
+                operation:"get",
+
+                validUntil:
+                Date.now() + 10 * 60 * 1000
 
             }
 
@@ -90,7 +79,7 @@ export default async function handler(req,res){
 
 
 
-        return res.status(200).json({
+        return res.json({
 
             url:presignedUrl
 
@@ -102,10 +91,7 @@ export default async function handler(req,res){
     catch(error){
 
 
-        console.error(
-            "签名错误:",
-            error
-        );
+        console.error(error);
 
 
         return res.status(500).json({
@@ -113,6 +99,7 @@ export default async function handler(req,res){
             error:error.message
 
         });
+
 
     }
 
