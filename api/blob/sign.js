@@ -61,8 +61,7 @@ export default async function handler(req,res){
             pathname: pathname,
 
             // 加这个
-            storeId:
-            process.env.BLOB_STORE_ID,
+            storeId: process.env.BLOB_STORE_ID,
 
             // 加这个
             access:"private",
@@ -74,6 +73,16 @@ export default async function handler(req,res){
         });
 
 
+        return res.status(200).json({
+
+            token: token,
+
+            env: {
+                storeId: process.env.BLOB_STORE_ID,
+                hasToken: !!process.env.BLOB_READ_WRITE_TOKEN
+            }
+
+        });
 
 
 
@@ -81,37 +90,37 @@ export default async function handler(req,res){
         // 2. 生成临时URL
         // =========================
 
-        const {
-            presignedUrl
-        } =
-        await presignUrl(
+        // const {
+        //     presignedUrl
+        // } =
+        // await presignUrl(
 
-            token,
+        //     token,
 
-            {
+        //     {
 
-                pathname: pathname,
+        //         pathname: pathname,
 
-                operation:"get",
+        //         operation:"get",
 
-                // 10分钟有效
+        //         // 10分钟有效
 
-                validUntil:
-                Date.now() + 
-                10 * 60 * 1000
+        //         validUntil:
+        //         Date.now() + 
+        //         10 * 60 * 1000
 
-            }
+        //     }
 
-        );
-
-
+        // );
 
 
-        return res.status(200).json({
 
-            url:presignedUrl
 
-        });
+        // return res.status(200).json({
+
+        //     url:presignedUrl
+
+        // });
 
 
 
