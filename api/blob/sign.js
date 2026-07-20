@@ -1,10 +1,8 @@
-import { presignUrl } from "@vercel/blob";
+import { issueSignedToken, presignUrl } from "@vercel/blob";
 
 
 export default async function handler(req,res){
 
-
-    // CORS
 
     res.setHeader(
         "Access-Control-Allow-Origin",
@@ -34,16 +32,16 @@ export default async function handler(req,res){
 
 
         const {
-            url
+            pathname
         } = req.body;
 
 
 
-        if(!url){
+        if(!pathname){
 
             return res.status(400).json({
 
-                error:"Missing url"
+                error:"Missing pathname"
 
             });
 
@@ -51,17 +49,50 @@ export default async function handler(req,res){
 
 
 
-        // =========================
-        // 生成临时访问URL
-        // =========================
+        // ==========================
+        // 生成签名Token
+        // ==========================
 
+        const {
+            clientToken,
+            clientSigningToken,
+            delegationToken
+        } = await issueSignedToken({
+
+            pathname: pathname,
+
+            onToken: ()=>{},
+
+            allowedContentTypes:[
+                "image/*"
+            ]
+
+        });
+
+
+
+        // ==========================
+        // 生成临时URL
+        // ==========================
 
         const presignedUrl =
-        await presignUrl(url);
+        await presignUrl(
+
+            pathname,
+
+            {
+
+                clientSigningToken,
+
+                delegationToken
+
+            }
+
+        );
 
 
 
-        return res.status(200).json({
+        return res.json({
 
             url:presignedUrl
 
@@ -85,8 +116,6 @@ export default async function handler(req,res){
 
         });
 
-
     }
-
 
 }
