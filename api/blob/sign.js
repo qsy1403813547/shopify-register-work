@@ -90,7 +90,7 @@ export default async function handler(req,res){
 
             {
 
-                pathname: pathname,
+                pathname: 'rar7yqqletlnnqwd.private.blob.vercel-storage.com' + pathname,
 
                 operation:"get",
 
