@@ -81,37 +81,23 @@ export default async function handler(req,res){
         // 2. 生成临时URL
         // =========================
 
-        const {
-            presignedUrl
-        } =
-        await presignUrl(
-
-
+        const presignedUrl = await presignUrl(
+            token.clientSigningToken,
             {
-
-                ...token,
-
                 pathname: pathname,
 
-                operation:"get",
+                operation: "get",
 
-                // 10分钟有效
+                access:"private",
 
                 validUntil:
-                Date.now() + 
-                10 * 60 * 1000
-
+                    Date.now() + 10 * 60 * 1000
             }
-
         );
 
 
-
-
         return res.status(200).json({
-
             url: presignedUrl
-
         });
 
 
